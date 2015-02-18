@@ -198,7 +198,7 @@ namespace Arkanoid
                     //S'il ne reste pas de niveau à chargé (le joueur à gagné)
                     if(levelLayout.NumberOfLevels == currentLevelNumber)
                     {
-                        //TODO : Mettre un message de triomphe
+                        PlayerHasWon();
                     }
 
                     //S'il reste des niveau, on charge le niveau suivant
@@ -455,6 +455,10 @@ namespace Arkanoid
             System.Threading.Thread.Sleep(1000);
         }
 
+        private void PlayerHasWon()
+        {
+            //TODO : Mettre un message de triomphe
+        }
         //Methode appelée quand le joueur a perdu
         private void GameOver()
         {
