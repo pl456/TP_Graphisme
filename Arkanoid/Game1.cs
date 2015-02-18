@@ -343,10 +343,22 @@ namespace Arkanoid
                 {
                     brickController.DeleteBrick(brick);
 
-                    //Change la direction en z
-                    //Si la balle va vers le nord et qu'elle frappe un objet,
-                    //est ira vers le sud
-                    ball.ReverseVelocityInZ();
+                    //Si la balle frappe le coté (est-ouest) d'une brique
+                    if ((int)Decimal.Ceiling((decimal)(ball.Position.Z - ball.Height)) != 0)
+                    {
+                        ball.ReverseVelocityInX();
+                        ball.ReverseVelocityInZ();
+                    }
+
+                    //Si la balle frappe le haut ou le bas d'une brique (nord-sud)
+                    else
+                    {
+                        //Change la direction en z
+                        //Si la balle va vers le nord et qu'elle frappe un objet,
+                        //est ira vers le sud
+                        ball.ReverseVelocityInZ();
+                    }
+                    
                     break;
                 }
             }
