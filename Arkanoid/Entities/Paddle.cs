@@ -29,6 +29,13 @@ namespace Arkanoid.Entities
             position.X += moveLength;
             worldMatrix = Matrix.CreateTranslation(position);
         }
+
+        //Remet le paddle à sa position par défaut
+        public void Reset()
+        {
+            position = new Vector3(0, 0, z);
+            worldMatrix = Matrix.CreateTranslation(position);
+        }
 /*
         //Retourne la position en x
         public float X

@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="Entities\Ball.cs" />
     <Compile Include="Entities\IWorldObject.cs" />
+    <Compile Include="Entities\Level.cs" />
     <Compile Include="Entities\Paddle.cs" />
     <Compile Include="Entities\Wall.cs" />
     <Compile Include="Entities\BlueBrick.cs" />
@@ -61,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icon.ico" />
+    <Content Include="Ressources\Levels.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArkanoidContent\ArkanoidContent\ArkanoidContent.csproj">

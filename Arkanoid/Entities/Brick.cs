@@ -30,7 +30,19 @@ namespace Arkanoid.Entities
         //Position réelle dans le plan 3D
         protected Vector3 position;
 
-    
+        //Fait une translation en y. Ne peut pas dépasser 0
+        public void TranslateInY(float yDisplacement)
+        {
+            float newY = position.Y - yDisplacement;
+
+            if (newY < 0)
+                newY = 0;
+
+            position.Y = newY;
+
+            worldMatrix = Matrix.CreateTranslation(position);
+        }
+
         #region Getters & Setters
         public BrickColor BrickColor
         {

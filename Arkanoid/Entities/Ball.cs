@@ -36,10 +36,10 @@ namespace Arkanoid.Entities
         {
             position = new Vector3(1, 0, 28);
             worldMatrix = Matrix.CreateTranslation(position);
-            model = contentManager.Load<Model>("GameObjects/Ball");
             currentVelocityType = CurrentVelocity.Medium;
+            model = contentManager.Load<Model>("GameObjects/Ball");
 
-            Console.Out.Write("directionInX | xOffset | velocityInX | directionInZ | velocityInZ | position.Z | position.X");
+           // Console.Out.Write("directionInX | xOffset | velocityInX | directionInZ | velocityInZ | position.Z | position.X");
         }
 
         public void Move()
@@ -74,7 +74,7 @@ namespace Arkanoid.Entities
             
             worldMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(angle)) * Matrix.CreateTranslation(position);
 
-            Console.Out.WriteLine(directionInX + " " +  xOffset + " " +  velocityInX + " " +  directionInZ + " " +  velocityInZ + " " +  position.Z + " " +  position.X);
+            //Console.Out.WriteLine(directionInX + " " +  xOffset + " " +  velocityInX + " " +  directionInZ + " " +  velocityInZ + " " +  position.Z + " " +  position.X);
         }
 
         //Change la vitesse de la balle (rapide)
@@ -114,7 +114,16 @@ namespace Arkanoid.Entities
             xOffset = 1.5f * Math.Abs(paddlePositionX - position.X) + 1;
         }
         
-
+        //Remet les paramètres par défaut à la balle
+        public void Reset()
+        {
+            position = new Vector3(1, 0, 28);
+            worldMatrix = Matrix.CreateTranslation(position);
+            currentVelocityType = CurrentVelocity.Medium;
+            angle = 45;
+            directionInX = -1;
+            directionInZ = -1;
+        }
 
         #region Setters & getters
 

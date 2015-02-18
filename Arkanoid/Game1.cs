@@ -37,28 +37,35 @@ namespace Arkanoid
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), 800f / 480f, 0.1f, 100f);
 
         //Murs qui définissent la zone de jeu
-        Wall backWall;
-        Wall leftWall;
-        Wall rightWall;
+        private Wall backWall;
+        private Wall leftWall;
+        private Wall rightWall;
         
         //Palette controlée par le joueur
-        Paddle paddle;
+        private Paddle paddle;
 
         //Balle du jeu
-        Ball ball;
+        private Ball ball;
 
        
         //Obersvable qui prend le gametime et le dispatch à tous les timer custom qui sont en écoute
-        ObservableTimer observableTimer = new ObservableTimer();
+        private ObservableTimer observableTimer = new ObservableTimer();
 
         //Timer qui empèche la détection de collision entre la balle et le paddle. Ceci est utilisé pour empècher que la balle entre en collision 2
         //fois avec le paddle très rapidement. Cela arrive notamment quand la balle frappe le coté du paddle et que le joueur bouge le paddle en même temps.
-        CustomTimer paddleStopHitDetectionTimer = new CustomTimer();
+        private CustomTimer paddleStopHitDetectionTimer = new CustomTimer();
 
         //Timers qui empèche la détection de collision entre la balle et les murs gauche et droit. Ceci est utilisé pour empècher que la balle entre reste collé
         //sur le mur. Cela est dû à une détection de collision trop rapide.
-        CustomTimer leftWallStopHitDetectionTimer = new CustomTimer();
-        CustomTimer rightWallStopHitDetectionTimer = new CustomTimer(); 
+        private CustomTimer leftWallStopHitDetectionTimer = new CustomTimer();
+        private CustomTimer rightWallStopHitDetectionTimer = new CustomTimer();
+        private CustomTimer bricksAnimationTimer = new CustomTimer(); 
+
+        //Nombre de vies du joueur
+        private int numberOfLives = 3;
+
+        //Numéro du level
+        int currentLevelNumber = 1;
 
         public Game1()
             : base()
@@ -96,8 +103,13 @@ namespace Arkanoid
             brickController = new BrickController(Content);
             levelLayout = new LevelLayout(brickController);
 
+
             
+
+
             base.Initialize();
+
+            
         }
 
         /// <summary>
@@ -122,12 +134,14 @@ namespace Arkanoid
 
 
             //Mets les briques aux bonnes position dans le contrôleur de briques
-            levelLayout.CreateLevel(1);
+            levelLayout.CreateLevel(currentLevelNumber);
 
             //Enregistre les timers dans l'observable
             observableTimer.RegisterObserver(paddleStopHitDetectionTimer);
             observableTimer.RegisterObserver(leftWallStopHitDetectionTimer);
             observableTimer.RegisterObserver(rightWallStopHitDetectionTimer);
+            observableTimer.RegisterObserver(bricksAnimationTimer);
+            
             
         }
 
@@ -147,29 +161,79 @@ namespace Arkanoid
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            //Notifie les timers customer que le gamtime a changé
-            observableTimer.NotifyObservers(gameTime);
-
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
             currentKeys = Keyboard.GetState();
 
             //Press Esc To Exit
-            if (currentKeys.IsKeyDown(Keys.Escape))
-                this.Exit();
+            //if (currentKeys.IsKeyDown(Keys.Escape))
+            //    this.Exit();
 
-            /*
-            //Press Directional Keys to rotate cube
-            if (currentKeys.IsKeyDown(Keys.Up))
-                world *= Matrix.CreateRotationX(-0.05f);
-            if (currentKeys.IsKeyDown(Keys.Down))
-                world *= Matrix.CreateRotationX(0.05f);
-            if (currentKeys.IsKeyDown(Keys.Left))
-                world *= Matrix.CreateRotationY(-0.05f);
-            if (currentKeys.IsKeyDown(Keys.Right))
-                world *= Matrix.CreateRotationY(0.05f);
-            */
+
+
+            //Si le bouton escape est enfoncé, on quitte le jeu
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
+
+
+            //Notifie les timers customer que le gamtime a changé
+            observableTimer.NotifyObservers(gameTime);
+
+
+
+            //Vérifie si l'animation du début de jeu est complétée
+            if (!brickController.IsAnimationCompleted)
+            {
+                //if (bricksAnimationTimer.IsTimerStarted == false || bricksAnimationTimer.isTimeUp(50))
+                //{
+                    //bricksAnimationTimer.Start();
+                    brickController.Animate();
+                //}
+                
+            }
+
+            else
+            {
+                //Vérifie si le joueur à cassé toute les briques du niveau
+                if (brickController.BrickCount == 0)
+                {
+                    //S'il ne reste pas de niveau à chargé (le joueur à gagné)
+                    if(levelLayout.NumberOfLevels == currentLevelNumber)
+                    {
+                        //TODO : Mettre un message de triomphe
+                    }
+
+                    //S'il reste des niveau, on charge le niveau suivant
+                    else
+                    {
+                        levelLayout.CreateLevel(++currentLevelNumber);
+                        brickController.IsAnimationCompleted = false;
+                        ResetBoard();
+                    }
+                }
+
+                    //Les briques ne sont pas toutes cassé, le jeu se poursuit
+                else
+                {
+
+                    //Vérifie si la balle est sortie de la zone de jeu
+                    if (ball.Position.Z > 30)
+                    {
+                        if (--numberOfLives == 0)    //Enlève une vie au joueur et vérifie s'il est gameover
+                        {
+                            GameOver();
+                        }
+
+
+                        ResetBoard();       //Remet la balle et le paddle à leur position respective
+                    }
+
+                    //Mouvement de la balle
+                    ball.Move();
+
+                    //Vérifie les collisions
+                    CheckForCollisions();
+                }
+            }
+
 
             //Haut/bas + Gauche/Droite
             if (currentKeys.IsKeyDown(Keys.Up))
@@ -204,14 +268,7 @@ namespace Arkanoid
                 ball.SetMediumVelocity();
             if (currentKeys.IsKeyDown(Keys.NumPad3))
                 ball.SetFastVelocity();
-
-            //Mouvement de la balle
-            ball.Move();
-
-
-            //Vérifie les collisions
-            CheckForCollisions();
-            base.Update(gameTime);
+                base.Update(gameTime);
         }
 
         /// <summary>
@@ -240,6 +297,9 @@ namespace Arkanoid
 
             //Affiche la balle
             DrawModel(ball.Model, ball.WorldMatrix, view, projection);
+
+
+            
 
             base.Draw(gameTime);
         }
@@ -383,6 +443,31 @@ namespace Arkanoid
                 return true;
                 
             return false;
+        }
+
+        //Méthode qui permet de remettre le jeu au départ. Notez-bien, cette méthode remet uniquement la balle
+        //et le paddle au position de base. Les briques sont laissées telle-quelle. On utilise cette méthode 
+        //pour reprendre le jeu après la perte d'une vie.
+        private void ResetBoard()
+        {
+            ball.Reset();
+            paddle.Reset();
+            System.Threading.Thread.Sleep(1000);
+        }
+
+        //Methode appelée quand le joueur a perdu
+        private void GameOver()
+        {
+            System.Threading.Thread.Sleep(4000);
+            
+            //TODO : Mettre le message de game over
+
+
+            ResetBoard();
+            brickController.IsAnimationCompleted = false;
+            levelLayout.CreateLevel(1);
+
+
         }
     }
 }
