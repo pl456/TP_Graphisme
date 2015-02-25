@@ -312,9 +312,22 @@ namespace Arkanoid
             {
                 foreach (BasicEffect effect in mesh.Effects)
                 {
-                    effect.World = world;
-                    effect.View = view;
-                    effect.Projection = projection;
+                    //effect.EnableDefaultLighting();
+                    effect.PreferPerPixelLighting = true;
+
+                    effect.LightingEnabled = true; // turn on the lighting subsystem.
+                    effect.DirectionalLight0.DiffuseColor = new Vector3(0.2f, 0.2f, 0.2f); 
+                    effect.DirectionalLight0.Direction = new Vector3(-1, 0.25f, -1);  // coming along the x-axis
+                    effect.DirectionalLight0.SpecularColor = new Vector3(0.1f, 0.1f, 0.1f); // with green highlights
+
+                   effect.AmbientLightColor = new Vector3(0.4f, 0.4f, 0.4f);
+                   effect.EmissiveColor = new Vector3(0.2f, 0.2f, 0.2f);
+
+                   effect.World = mesh.ParentBone.Transform *  world;
+                   effect.View = view;
+                   effect.Projection = projection;
+
+  
                 }
 
                 mesh.Draw();
