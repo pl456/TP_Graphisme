@@ -18,7 +18,8 @@ namespace Arkanoid.Entities
         private Texture2D texture;
         private Vector2 position;
         private Rectangle rectangle;
-        public Vector2 size;
+        private Vector2 size;
+        private MouseState previousMouseState;
 
         Color color = new Color(255,255,255);
 
@@ -27,6 +28,8 @@ namespace Arkanoid.Entities
         {
             texture = newTexture;
             size = new Vector2(graphics.Viewport.Width / 2, graphics.Viewport.Height / 10);
+            previousMouseState = new MouseState();        
+
         }
 
         bool down;
@@ -43,7 +46,14 @@ namespace Arkanoid.Entities
                 if (color.A == 255) down = false;
                 if (color.A == 0) down = true;
                 if (down) color.A += 3; else color.A -= 3;
-                if (mouse.LeftButton == ButtonState.Pressed) isClicked = true;
+
+                if (previousMouseState.LeftButton == ButtonState.Released
+                        && mouse.LeftButton == ButtonState.Pressed)
+                {
+                    isClicked = true;
+                }
+
+                previousMouseState = Mouse.GetState();
             }
             else if(color.A < 255)
             {
@@ -57,9 +67,9 @@ namespace Arkanoid.Entities
         {
             position = newPosition;
         }
-        public void show()
+        public void ResetClick()
         {
-
+            isClicked = false;
                    
         }
 

@@ -16,7 +16,7 @@ namespace Arkanoid.Entities
 
         Texture2D gameOverImage;
         Vector2 position;
-        Timer timer = new Timer(5000);
+        Timer timer = new Timer(2000);
 
         public gameOver(ContentManager contentManager)
         {
@@ -29,9 +29,7 @@ namespace Arkanoid.Entities
         public void show()
         {
             timer.Start();
-            timer.AutoReset = true;
-            
-         
+             
         }
 
         public void draw(SpriteBatch spriteBatch)

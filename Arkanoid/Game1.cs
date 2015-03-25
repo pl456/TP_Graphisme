@@ -179,53 +179,57 @@ namespace Arkanoid
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            currentKeys = Keyboard.GetState();
-            MouseState mouse = Mouse.GetState();
-
-            //Press Esc To Exit
-            //if (currentKeys.IsKeyDown(Keys.Escape))
-            //    this.Exit();
-
 
 
             //Si le bouton escape est enfoncé, on quitte le jeu
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-
-            if(gameOver.isShowing())
+            switch (currentGameState)
             {
-                return;
+                case GameState.MainMenu:
+                    MainMenuUpdate(gameTime);
+                    break;
+                case GameState.Playing:
+                    PlayingUpdate(gameTime);
+                    break;
+                case GameState.GameOver:
+                    GameOverUpdate(gameTime);
+                    break;
             }
 
-            if(!gameOver.isShowing() & currentGameState == GameState.GameOver)
-            {
-                currentGameState = GameState.MainMenu;
-                return;
-            }
+         }
 
+        protected void MainMenuUpdate(GameTime gameTime)
+        {
+            MouseState mouse = Mouse.GetState();
             if (currentGameState == GameState.MainMenu)
             {
-                if(btnPLay.isClicked == true) 
+                if (btnPLay.isClicked == true)
+                {
                     currentGameState = GameState.Playing;
+                }
                 btnPLay.Update(mouse);
                 return;
             }
+        }
 
+        protected void PlayingUpdate(GameTime gameTime)
+        {
             //Notifie les timers customer que le gamtime a changé
             observableTimer.NotifyObservers(gameTime);
 
-
+            currentKeys = Keyboard.GetState();
 
             //Vérifie si l'animation du début de jeu est complétée
             if (!brickController.IsAnimationCompleted)
             {
                 //if (bricksAnimationTimer.IsTimerStarted == false || bricksAnimationTimer.isTimeUp(50))
                 //{
-                    //bricksAnimationTimer.Start();
-                    brickController.Animate();
+                //bricksAnimationTimer.Start();
+                brickController.Animate();
                 //}
-                
+
             }
 
             else
@@ -234,7 +238,7 @@ namespace Arkanoid
                 if (brickController.BrickCount == 0)
                 {
                     //S'il ne reste pas de niveau à chargé (le joueur à gagné)
-                    if(levelLayout.NumberOfLevels == currentLevelNumber)
+                    if (levelLayout.NumberOfLevels == currentLevelNumber)
                     {
                         PlayerHasWon();
                     }
@@ -305,53 +309,46 @@ namespace Arkanoid
                 ball.SetMediumVelocity();
             if (currentKeys.IsKeyDown(Keys.NumPad3))
                 ball.SetFastVelocity();
-                base.Update(gameTime);
+            base.Update(gameTime);
+
+
+
         }
 
+        protected void GameOverUpdate(GameTime gameTime)
+        {
+            if (gameOver.isShowing())
+            {
+                return;
+            }
+
+            if (!gameOver.isShowing() & currentGameState == GameState.GameOver)
+            {
+                btnPLay.ResetClick();
+                currentGameState = GameState.MainMenu;
+                return;
+            }
+        }
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-
             GraphicsDevice.Clear(Color.Black);
 
-            if (currentGameState == GameState.MainMenu)
+            switch(currentGameState)
             {
-                spriteBatch.Begin();
-                spriteBatch.Draw(Content.Load<Texture2D>("GameObjects/PaddleTexture"), new Rectangle(0, 0, 900, 700), Color.White);
-                btnPLay.draw(spriteBatch);
-                spriteBatch.End();
-                return;
-            }
-
-            if(currentGameState == GameState.GameOver)
-            {
-                gameOver.draw(spriteBatch);
-                return;
-            }
-
-
-            //Affiche les briques du controleurs
-            foreach (Brick brick in brickController.Bricks)
-            {
-                DrawModel(brick.Model, brick.WorldMatrix, view, projection);
-            }
-
-            //Affiche les murs
-            DrawModel(backWall.Model, backWall.WorldMatrix, view, projection);
-            DrawModel(leftWall.Model, leftWall.WorldMatrix, view, projection);
-            DrawModel(rightWall.Model, rightWall.WorldMatrix, view, projection);
-
-            //Affiche le paddle 
-            DrawModel(paddle.Model, paddle.WorldMatrix, view, projection);
-
-            //Affiche la balle
-            DrawModel(ball.Model, ball.WorldMatrix, view, projection);
-
-
-            
+                case GameState.MainMenu:
+                    MainMenuDraw(gameTime);
+                    break;    
+                case GameState.Playing:
+                    PlayingDraw(gameTime);
+                    break;
+                case GameState.GameOver:
+                    GameOverDraw(gameTime);
+                    break;
+            }      
 
             base.Draw(gameTime);
         }
@@ -386,6 +383,46 @@ namespace Arkanoid
             }
 
             
+        }
+
+        protected void GameOverDraw(GameTime gametime)
+        {
+            //if (gameOver.isShowing())
+            //{
+            //    return;
+            //}
+             
+            gameOver.draw(spriteBatch);
+
+        }
+
+        protected void MainMenuDraw(GameTime gametime)
+        {
+            spriteBatch.Begin();
+            spriteBatch.Draw(Content.Load<Texture2D>("GameObjects/PaddleTexture"), new Rectangle(0, 0, 900, 700), Color.White);
+            btnPLay.draw(spriteBatch);
+            spriteBatch.End();
+        }
+
+        protected void PlayingDraw(GameTime gametime)
+        {
+
+            //Affiche les briques du controleurs
+            foreach (Brick brick in brickController.Bricks)
+            {
+                DrawModel(brick.Model, brick.WorldMatrix, view, projection);
+            }
+
+            //Affiche les murs
+            DrawModel(backWall.Model, backWall.WorldMatrix, view, projection);
+            DrawModel(leftWall.Model, leftWall.WorldMatrix, view, projection);
+            DrawModel(rightWall.Model, rightWall.WorldMatrix, view, projection);
+
+            //Affiche le paddle 
+            DrawModel(paddle.Model, paddle.WorldMatrix, view, projection);
+
+            //Affiche la balle
+            DrawModel(ball.Model, ball.WorldMatrix, view, projection);
         }
 
         //Vérifie s'il y a des collisons
