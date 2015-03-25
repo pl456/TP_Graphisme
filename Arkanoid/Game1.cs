@@ -40,6 +40,7 @@ namespace Arkanoid
         private Wall backWall;
         private Wall leftWall;
         private Wall rightWall;
+        private gameOver gameOver;
         
         //Palette controlée par le joueur
         private Paddle paddle;
@@ -61,11 +62,22 @@ namespace Arkanoid
         private CustomTimer rightWallStopHitDetectionTimer = new CustomTimer();
         private CustomTimer bricksAnimationTimer = new CustomTimer(); 
 
+        //Nombre de vie au début
+        private static int startnumberOfLives = 1;
         //Nombre de vies du joueur
-        private int numberOfLives = 3;
+        private int numberOfLives = startnumberOfLives;
 
         //Numéro du level
         int currentLevelNumber = 1;
+        enum GameState
+        {
+            MainMenu,
+            Playing,
+            GameOver
+        }
+
+        GameState currentGameState = GameState.MainMenu;
+        button btnPLay;
 
         public Game1()
             : base()
@@ -132,6 +144,12 @@ namespace Arkanoid
             //Initialise la balle
             ball = new Ball(Content);
 
+            //Initialise le GameOver image
+            gameOver = new gameOver(Content);
+            btnPLay = new button(Content.Load<Texture2D>("GameObjects/BlueBrickTexture"), graphics.GraphicsDevice);
+            btnPLay.setPosition(new Vector2(250, 250));
+            //rendre visilbe la souris
+            IsMouseVisible = true;
 
             //Mets les briques aux bonnes position dans le contrôleur de briques
             levelLayout.CreateLevel(currentLevelNumber);
@@ -162,6 +180,7 @@ namespace Arkanoid
         protected override void Update(GameTime gameTime)
         {
             currentKeys = Keyboard.GetState();
+            MouseState mouse = Mouse.GetState();
 
             //Press Esc To Exit
             //if (currentKeys.IsKeyDown(Keys.Escape))
@@ -173,6 +192,25 @@ namespace Arkanoid
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+
+            if(gameOver.isShowing())
+            {
+                return;
+            }
+
+            if(!gameOver.isShowing() & currentGameState == GameState.GameOver)
+            {
+                currentGameState = GameState.MainMenu;
+                return;
+            }
+
+            if (currentGameState == GameState.MainMenu)
+            {
+                if(btnPLay.isClicked == true) 
+                    currentGameState = GameState.Playing;
+                btnPLay.Update(mouse);
+                return;
+            }
 
             //Notifie les timers customer que le gamtime a changé
             observableTimer.NotifyObservers(gameTime);
@@ -221,7 +259,6 @@ namespace Arkanoid
                         {
                             GameOver();
                         }
-
 
                         ResetBoard();       //Remet la balle et le paddle à leur position respective
                     }
@@ -277,9 +314,24 @@ namespace Arkanoid
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-           
 
             GraphicsDevice.Clear(Color.Black);
+
+            if (currentGameState == GameState.MainMenu)
+            {
+                spriteBatch.Begin();
+                spriteBatch.Draw(Content.Load<Texture2D>("GameObjects/PaddleTexture"), new Rectangle(0, 0, 900, 700), Color.White);
+                btnPLay.draw(spriteBatch);
+                spriteBatch.End();
+                return;
+            }
+
+            if(currentGameState == GameState.GameOver)
+            {
+                gameOver.draw(spriteBatch);
+                return;
+            }
+
 
             //Affiche les briques du controleurs
             foreach (Brick brick in brickController.Bricks)
@@ -465,7 +517,8 @@ namespace Arkanoid
         {
             ball.Reset();
             paddle.Reset();
-            System.Threading.Thread.Sleep(1000);
+            numberOfLives = startnumberOfLives;
+            //System.Threading.Thread.Sleep(1000);
         }
 
         private void PlayerHasWon()
@@ -475,15 +528,12 @@ namespace Arkanoid
         //Methode appelée quand le joueur a perdu
         private void GameOver()
         {
-            System.Threading.Thread.Sleep(4000);
-            
-            //TODO : Mettre le message de game over
 
-
+            gameOver.show();
             ResetBoard();
             brickController.IsAnimationCompleted = false;
             levelLayout.CreateLevel(1);
-
+            currentGameState = GameState.GameOver;
 
         }
     }

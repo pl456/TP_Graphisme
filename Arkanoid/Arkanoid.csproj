@@ -35,6 +35,8 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Entities\button.cs" />
+    <Compile Include="Entities\gameOver.cs" />
     <Compile Include="Entities\Ball.cs" />
     <Compile Include="Entities\IWorldObject.cs" />
     <Compile Include="Entities\Level.cs" />
