@@ -20,9 +20,10 @@ namespace Arkanoid.Entities
         private Rectangle rectangle;
         private Vector2 size;
         private MouseState previousMouseState;
+        Color color = new Color(255, 255, 255);
 
-        Color color = new Color(255,255,255);
-
+        bool down;
+        public bool isClicked;
 
         public button(Texture2D newTexture, GraphicsDevice graphics)
         {
@@ -31,9 +32,6 @@ namespace Arkanoid.Entities
             previousMouseState = new MouseState();        
 
         }
-
-        bool down;
-        public bool isClicked;
 
         public void Update(MouseState mouse)
         {
@@ -69,18 +67,13 @@ namespace Arkanoid.Entities
         }
         public void ResetClick()
         {
-            isClicked = false;
-                   
+            isClicked = false;                 
         }
 
         public void draw(SpriteBatch spriteBatch)
         {         
                 spriteBatch.Draw(texture, rectangle, color);
-        }
-
-        public Boolean isShowing()
-        {
-            return true;//timer.Enabled;
+                //spriteBatch.DrawString(SpriteFont,"Patate", position, Color.Black);
         }
 
     }

@@ -63,7 +63,7 @@ namespace Arkanoid
         private CustomTimer bricksAnimationTimer = new CustomTimer(); 
 
         //Nombre de vie au début
-        private static int startnumberOfLives = 1;
+        private static int startnumberOfLives = 3;
         //Nombre de vies du joueur
         private int numberOfLives = startnumberOfLives;
 
@@ -77,7 +77,9 @@ namespace Arkanoid
         }
 
         GameState currentGameState = GameState.MainMenu;
-        button btnPLay;
+        button btnLevel1;
+        button btnLevel2;
+        button btnExit;
 
         public Game1()
             : base()
@@ -107,21 +109,13 @@ namespace Arkanoid
             graphics.PreferredBackBufferHeight = 700;
             graphics.ApplyChanges();
 
-
             //Ajuste l'angle de caméra pour bien voir le jeu
             view *= Matrix.CreateRotationX(MathHelper.ToRadians(20));
-
 
             brickController = new BrickController(Content);
             levelLayout = new LevelLayout(brickController);
 
-
-            
-
-
-            base.Initialize();
-
-            
+            base.Initialize();        
         }
 
         /// <summary>
@@ -146,8 +140,15 @@ namespace Arkanoid
 
             //Initialise le GameOver image
             gameOver = new gameOver(Content);
-            btnPLay = new button(Content.Load<Texture2D>("GameObjects/BlueBrickTexture"), graphics.GraphicsDevice);
-            btnPLay.setPosition(new Vector2(250, 250));
+            btnLevel1 = new button(Content.Load<Texture2D>("GameObjects/Level1"), graphics.GraphicsDevice);
+            btnLevel1.setPosition(new Vector2(200, 150));
+
+            btnLevel2 = new button(Content.Load<Texture2D>("GameObjects/Level2"), graphics.GraphicsDevice);
+            btnLevel2.setPosition(new Vector2(200, 250));
+
+            btnExit = new button(Content.Load<Texture2D>("GameObjects/Exit"), graphics.GraphicsDevice);
+            btnExit.setPosition(new Vector2(200, 350));
+
             //rendre visilbe la souris
             IsMouseVisible = true;
 
@@ -183,8 +184,9 @@ namespace Arkanoid
 
             //Si le bouton escape est enfoncé, on quitte le jeu
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+                GameOver();
 
+            //selon le status de la partie on execute le bon update
             switch (currentGameState)
             {
                 case GameState.MainMenu:
@@ -197,21 +199,39 @@ namespace Arkanoid
                     GameOverUpdate(gameTime);
                     break;
             }
-
          }
 
         protected void MainMenuUpdate(GameTime gameTime)
         {
             MouseState mouse = Mouse.GetState();
-            if (currentGameState == GameState.MainMenu)
+
+            //Action du bouton level1
+            if (btnLevel1.isClicked == true)   
             {
-                if (btnPLay.isClicked == true)
-                {
-                    currentGameState = GameState.Playing;
-                }
-                btnPLay.Update(mouse);
-                return;
+                currentLevelNumber = 1;
+                levelLayout.CreateLevel(1);
+                currentGameState = GameState.Playing;                
             }
+
+            //Action du bouton level2
+            if (btnLevel2.isClicked == true)
+            {
+                currentLevelNumber = 2;
+                levelLayout.CreateLevel(2);
+                currentGameState = GameState.Playing;
+            }
+
+            //Action du bouton Exit on Sort du jeu
+            if (btnExit.isClicked == true)
+            {
+                Exit();
+            }
+
+            //Update l'affichage du bouton selon la souris
+            btnLevel1.Update(mouse);
+            btnLevel2.Update(mouse);
+            btnExit.Update(mouse);
+
         }
 
         protected void PlayingUpdate(GameTime gameTime)
@@ -229,7 +249,6 @@ namespace Arkanoid
                 //bricksAnimationTimer.Start();
                 brickController.Animate();
                 //}
-
             }
 
             else
@@ -255,7 +274,6 @@ namespace Arkanoid
                     //Les briques ne sont pas toutes cassé, le jeu se poursuit
                 else
                 {
-
                     //Vérifie si la balle est sortie de la zone de jeu
                     if (ball.Position.Z > 30)
                     {
@@ -274,7 +292,6 @@ namespace Arkanoid
                     CheckForCollisions();
                 }
             }
-
 
             //Haut/bas + Gauche/Droite
             if (currentKeys.IsKeyDown(Keys.Up))
@@ -311,20 +328,16 @@ namespace Arkanoid
                 ball.SetFastVelocity();
             base.Update(gameTime);
 
-
-
         }
 
         protected void GameOverUpdate(GameTime gameTime)
         {
-            if (gameOver.isShowing())
-            {
-                return;
-            }
-
+            //si le temps est fini on revient au menu;
             if (!gameOver.isShowing() & currentGameState == GameState.GameOver)
             {
-                btnPLay.ResetClick();
+                btnLevel1.ResetClick();
+                btnLevel2.ResetClick();
+                btnExit.ResetClick();
                 currentGameState = GameState.MainMenu;
                 return;
             }
@@ -337,6 +350,7 @@ namespace Arkanoid
         {
             GraphicsDevice.Clear(Color.Black);
 
+            //affiche la bonne écran selon le statut.
             switch(currentGameState)
             {
                 case GameState.MainMenu:
@@ -387,20 +401,21 @@ namespace Arkanoid
 
         protected void GameOverDraw(GameTime gametime)
         {
-            //if (gameOver.isShowing())
-            //{
-            //    return;
-            //}
-             
+            //affiche l'image de gameOver
             gameOver.draw(spriteBatch);
-
         }
 
         protected void MainMenuDraw(GameTime gametime)
         {
+            //affiche le menu
             spriteBatch.Begin();
             spriteBatch.Draw(Content.Load<Texture2D>("GameObjects/PaddleTexture"), new Rectangle(0, 0, 900, 700), Color.White);
-            btnPLay.draw(spriteBatch);
+
+            //affiche les boutons
+            btnLevel1.draw(spriteBatch);
+            btnLevel2.draw(spriteBatch);          
+            btnExit.draw(spriteBatch);
+            
             spriteBatch.End();
         }
 
@@ -554,24 +569,21 @@ namespace Arkanoid
         {
             ball.Reset();
             paddle.Reset();
-            numberOfLives = startnumberOfLives;
-            //System.Threading.Thread.Sleep(1000);
         }
 
         private void PlayerHasWon()
         {
             //TODO : Mettre un message de triomphe
         }
+        
         //Methode appelée quand le joueur a perdu
         private void GameOver()
         {
-
             gameOver.show();
             ResetBoard();
             brickController.IsAnimationCompleted = false;
-            levelLayout.CreateLevel(1);
             currentGameState = GameState.GameOver;
-
+            numberOfLives = startnumberOfLives;
         }
     }
 }
