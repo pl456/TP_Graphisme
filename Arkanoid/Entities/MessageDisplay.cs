@@ -11,17 +11,17 @@ namespace Arkanoid.Entities
 {
 
 
-    public class gameOver
+    public class MessageDisplay
     {
 
-        Texture2D gameOverImage;
+        Texture2D Textureimage;
         Vector2 position;
         Timer timer = new Timer(2000);
 
-        public gameOver(ContentManager contentManager)
+        public MessageDisplay(ContentManager contentManager, string pathTextureImage)
         {
            position = new Vector2(250, 250);
-           gameOverImage = contentManager.Load<Texture2D>("GameObjects/gameOver");
+           Textureimage = contentManager.Load<Texture2D>(pathTextureImage);
            timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
 
         }
@@ -37,7 +37,7 @@ namespace Arkanoid.Entities
             if (timer.Enabled) 
             {
                 spriteBatch.Begin();
-                spriteBatch.Draw(gameOverImage, position, Color.White);
+                spriteBatch.Draw(Textureimage, position, Color.White);
                 spriteBatch.End();
             }      
         }

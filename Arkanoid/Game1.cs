@@ -40,7 +40,8 @@ namespace Arkanoid
         private Wall backWall;
         private Wall leftWall;
         private Wall rightWall;
-        private gameOver gameOver;
+        private MessageDisplay gameOver;
+        private MessageDisplay win;
         
         //Palette controlée par le joueur
         private Paddle paddle;
@@ -73,13 +74,15 @@ namespace Arkanoid
         {
             MainMenu,
             Playing,
-            GameOver
+            GameOver,
+            Win
         }
 
         GameState currentGameState = GameState.MainMenu;
         button btnLevel1;
         button btnLevel2;
         button btnExit;
+        button LevelDisplay;
 
         public Game1()
             : base()
@@ -139,17 +142,21 @@ namespace Arkanoid
             ball = new Ball(Content);
 
             //Initialise le GameOver image
-            gameOver = new gameOver(Content);
-            btnLevel1 = new button(Content.Load<Texture2D>("GameObjects/Level1"), graphics.GraphicsDevice);
+            gameOver = new MessageDisplay(Content, "GameObjects/gameOver");
+            win = new MessageDisplay(Content, "GameObjects/Winner");
+            btnLevel1 = new button(Content, "GameObjects/Level1", graphics.GraphicsDevice);
             btnLevel1.setPosition(new Vector2(200, 150));
 
-            btnLevel2 = new button(Content.Load<Texture2D>("GameObjects/Level2"), graphics.GraphicsDevice);
+            btnLevel2 = new button(Content, "GameObjects/Level2", graphics.GraphicsDevice);
             btnLevel2.setPosition(new Vector2(200, 250));
 
-            btnExit = new button(Content.Load<Texture2D>("GameObjects/Exit"), graphics.GraphicsDevice);
+            btnExit = new button(Content, "GameObjects/Exit", graphics.GraphicsDevice);
             btnExit.setPosition(new Vector2(200, 350));
 
-            //rendre visilbe la souris
+            LevelDisplay = new button(Content, "GameObjects/PaddleTexture", graphics.GraphicsDevice);
+            LevelDisplay.setPosition(new Vector2(10, 0));
+
+            //Rendre visilbe la souris
             IsMouseVisible = true;
 
             //Mets les briques aux bonnes position dans le contrôleur de briques
@@ -197,6 +204,9 @@ namespace Arkanoid
                     break;
                 case GameState.GameOver:
                     GameOverUpdate(gameTime);
+                    break;
+                case GameState.Win:
+                    WinUpdate(gameTime);
                     break;
             }
          }
@@ -342,6 +352,20 @@ namespace Arkanoid
                 return;
             }
         }
+
+        protected void WinUpdate(GameTime gameTime)
+        {
+            //si le temps est fini on revient au menu;
+            if (!win.isShowing() & currentGameState == GameState.Win)
+            {
+                btnLevel1.ResetClick();
+                btnLevel2.ResetClick();
+                btnExit.ResetClick();
+                currentGameState = GameState.MainMenu;
+                return;
+            }
+        }
+
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -361,6 +385,9 @@ namespace Arkanoid
                     break;
                 case GameState.GameOver:
                     GameOverDraw(gameTime);
+                    break;
+                case GameState.Win:
+                    WinDraw(gameTime);
                     break;
             }      
 
@@ -405,6 +432,12 @@ namespace Arkanoid
             gameOver.draw(spriteBatch);
         }
 
+        protected void WinDraw(GameTime gametime)
+        {
+            //affiche l'image de Win
+            win.draw(spriteBatch);
+        }
+
         protected void MainMenuDraw(GameTime gametime)
         {
             //affiche le menu
@@ -438,6 +471,8 @@ namespace Arkanoid
 
             //Affiche la balle
             DrawModel(ball.Model, ball.WorldMatrix, view, projection);
+
+            LevelDisplay.drawString(spriteBatch, "Nombre de vie: " + numberOfLives.ToString() + "/" + startnumberOfLives.ToString());
         }
 
         //Vérifie s'il y a des collisons
@@ -567,18 +602,23 @@ namespace Arkanoid
         //pour reprendre le jeu après la perte d'une vie.
         private void ResetBoard()
         {
+            System.Threading.Thread.Sleep(400);  
             ball.Reset();
             paddle.Reset();
         }
 
         private void PlayerHasWon()
         {
-            //TODO : Mettre un message de triomphe
+            win.show();
+            ResetBoard();
+            brickController.IsAnimationCompleted = false;
+            currentGameState = GameState.Win;
+            numberOfLives = startnumberOfLives;
         }
         
         //Methode appelée quand le joueur a perdu
         private void GameOver()
-        {
+        {          
             gameOver.show();
             ResetBoard();
             brickController.IsAnimationCompleted = false;

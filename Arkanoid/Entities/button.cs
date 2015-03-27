@@ -21,15 +21,18 @@ namespace Arkanoid.Entities
         private Vector2 size;
         private MouseState previousMouseState;
         Color color = new Color(255, 255, 255);
+        SpriteFont font;
+        const String FontPath = "GameObjects/Font1";
 
         bool down;
         public bool isClicked;
 
-        public button(Texture2D newTexture, GraphicsDevice graphics)
+        public button(ContentManager contentManager, string pathTextureImage, GraphicsDevice graphics)
         {
-            texture = newTexture;
+            texture = contentManager.Load<Texture2D>(pathTextureImage);
             size = new Vector2(graphics.Viewport.Width / 2, graphics.Viewport.Height / 10);
-            previousMouseState = new MouseState();        
+            previousMouseState = new MouseState();
+            font = contentManager.Load<SpriteFont>(FontPath);
 
         }
 
@@ -73,7 +76,14 @@ namespace Arkanoid.Entities
         public void draw(SpriteBatch spriteBatch)
         {         
                 spriteBatch.Draw(texture, rectangle, color);
-                //spriteBatch.DrawString(SpriteFont,"Patate", position, Color.Black);
+                //spriteBatch.DrawString(font, "Patate", position, Color.Black);
+        }
+
+        public void drawString(SpriteBatch spriteBatch, String Text)
+        {
+            spriteBatch.Begin();
+            spriteBatch.DrawString(font, Text, position, Color.White);
+            spriteBatch.End();
         }
 
     }

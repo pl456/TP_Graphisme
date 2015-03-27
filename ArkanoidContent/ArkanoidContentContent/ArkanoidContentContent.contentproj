@@ -131,6 +131,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameObjects\Font1.spritefont">
+      <Name>Font1</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
     <None Include="GameObjects\DefaultFont">
       <Name>DefaultFont</Name>
       <Importer>FontDescriptionImporter</Importer>
@@ -154,6 +159,13 @@
   <ItemGroup>
     <Compile Include="GameObjects\Level2.png">
       <Name>Level2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="GameObjects\Winner.png">
+      <Name>Winner</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
