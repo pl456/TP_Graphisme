@@ -17,9 +17,9 @@ namespace Arkanoid.Entities
 
     public class Ball : IWorldObject
     {
-        private const float DEFAULT_VELOCITY = 0.1f;        //Vitesse par défaut
-        private const float FAST_VELOCITY = 0.2f;           //Vitesse rapide
-        private const float SLOW_VELOCITY = 0.03f;          //Vitesse lente
+        private const float DEFAULT_VELOCITY = 0.20f;        //Vitesse par défaut
+        private const float FAST_VELOCITY = 0.3f;           //Vitesse rapide
+        private const float SLOW_VELOCITY = 0.1f;          //Vitesse lente
         private  float xOffset = 1f;                     //Décallage des X pour éviter que la balle aille toujours au mêmes places
         private Matrix worldMatrix;                         //Matrice du monde de la balle
         private Model model;                                //Model 3d de la balle

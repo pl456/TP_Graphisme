@@ -20,20 +20,39 @@ namespace Arkanoid.Entities
         private Rectangle rectangle;
         private Vector2 size;
         private MouseState previousMouseState;
-        Color color = new Color(255, 255, 255);
-        SpriteFont font;
-        const String FontPath = "GameObjects/Font1";
+        private Color color = new Color(255, 255, 255);
+        private SpriteFont font;
+        private String FontPath = "GameObjects/ButtonText";
+        private string buttonText;
+        private ButtonType buttonType;
 
         bool down;
         public bool isClicked;
 
-        public button(ContentManager contentManager, string pathTextureImage, GraphicsDevice graphics)
+        public enum ButtonType
         {
-            texture = contentManager.Load<Texture2D>(pathTextureImage);
+            Level,
+            Display
+        }
+
+
+        public button(ContentManager contentManager, string pathTextureImage, GraphicsDevice graphics, string buttonText, ButtonType buttonType = ButtonType.Level)
+        {
+            if (pathTextureImage == null)
+                texture = null;
+            else
+                texture = contentManager.Load<Texture2D>(pathTextureImage);
+            
             size = new Vector2(graphics.Viewport.Width / 2, graphics.Viewport.Height / 10);
             previousMouseState = new MouseState();
+
+            this.buttonType = buttonType;
+            if(buttonType == ButtonType.Display)
+                FontPath = "GameObjects/Font1";
+
             font = contentManager.Load<SpriteFont>(FontPath);
 
+            this.buttonText = buttonText;
         }
 
         public void Update(MouseState mouse)
@@ -75,8 +94,8 @@ namespace Arkanoid.Entities
 
         public void draw(SpriteBatch spriteBatch)
         {         
-                spriteBatch.Draw(texture, rectangle, color);
-                //spriteBatch.DrawString(font, "Patate", position, Color.Black);
+                //spriteBatch.Draw(texture, rectangle, color);
+            spriteBatch.DrawString(font, buttonText, position, Color.Black);
         }
 
         public void drawString(SpriteBatch spriteBatch, String Text)

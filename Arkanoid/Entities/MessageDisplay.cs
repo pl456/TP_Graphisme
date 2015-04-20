@@ -16,11 +16,11 @@ namespace Arkanoid.Entities
 
         Texture2D Textureimage;
         Vector2 position;
-        Timer timer = new Timer(2000);
+        Timer timer = new Timer(3000);
 
         public MessageDisplay(ContentManager contentManager, string pathTextureImage)
         {
-           position = new Vector2(250, 250);
+           position = new Vector2(330, 250);
            Textureimage = contentManager.Load<Texture2D>(pathTextureImage);
            timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
 

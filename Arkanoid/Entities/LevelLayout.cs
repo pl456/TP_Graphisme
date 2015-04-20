@@ -177,6 +177,19 @@ namespace Arkanoid.Entities
             get { return levels[actualLevelNumber-1].Name; }
 
         }
+
+        public List<string> LevelNameList
+        {
+            get
+            {
+                List<string> list = new List<string>();
+                foreach (Level level in levels)
+                    list.Add(level.Name);
+
+
+                return list;
+            }
+        }
         
     }
 }
